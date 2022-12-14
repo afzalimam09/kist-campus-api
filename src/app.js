@@ -43,7 +43,7 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 // Serving static files
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Body parser, reading data from body
 app.use(express.json({ limit: "10kb" }));

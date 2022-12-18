@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { protect } from "../faculty/facultyController.js";
+import { protect, restrictToAdmin } from "../auth/authController.js";
 import {
     deleteNotice,
     editNotice,
@@ -12,14 +12,12 @@ const router = Router();
 
 router.get("/", getAllNotice);
 
-router.get("/:noticeId", getSingleNotice);
+router.get("/:id", getSingleNotice);
 
-router.use(protect);
-
-router.post("/upload", uploadNotice);
-
-router.patch("/edit/:noticeId", editNotice);
-
-router.delete("/delete/:noticeId", deleteNotice);
+//restrict to admin
+router.use(protect, restrictToAdmin);
+router.post("/", uploadNotice);
+router.patch("/:id", editNotice);
+router.delete("/:id", deleteNotice);
 
 export default router;

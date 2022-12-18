@@ -1,13 +1,11 @@
 import { promisify } from "util";
-
 import jsonwebtoken from "jsonwebtoken";
 const { sign, verify } = jsonwebtoken;
 
-import catchAsync from "../../helper/catchAsync.js";
+import User from "../../models/userModel.js";
 import AppError from "../../helper/appError.js";
-import Student from "../../models/studentModel.js";
+import catchAsync from "../../helper/catchAsync.js";
 
-// Function to generate jwt sign token
 const signToken = (id) => {
     return sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -31,21 +29,17 @@ const createSendToken = (user, statusCode, req, res) => {
     res.status(statusCode).json({
         status: "success",
         token,
-        data: {
-            user,
-        },
+        data: user,
     });
 };
 
 export const signup = catchAsync(async (req, res, next) => {
-    const newUser = await Student.create(req.body);
+    const newUser = await User.create(req.body);
     res.status(201).json({
         status: "success",
         message:
             "You are signed up. Please use /api/v1/student/signin to sign in",
-        data: {
-            newUser,
-        },
+        data: newUser,
     });
 });
 
@@ -58,7 +52,7 @@ export const signin = catchAsync(async (req, res, next) => {
     }
 
     //Check if user exist and password is correct
-    const user = await Student.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user || !(await user.correctPassword(password, user.password))) {
         return next(new AppError("Incorrect email or password!", 401));
@@ -107,7 +101,7 @@ export const protect = catchAsync(async (req, res, next) => {
     const decoded = await promisify(verify)(token, process.env.JWT_SECRET);
 
     // 3) Check if user still exists
-    const currentUser = await Student.findById(decoded.id);
+    const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
         return next(
             new AppError(
@@ -131,3 +125,15 @@ export const protect = catchAsync(async (req, res, next) => {
 
     next();
 });
+
+export const restrictToAdmin = (req, res, next) => {
+    if (!req.user.isAdmin) {
+        return next(
+            new AppError(
+                "You do not have permission to perform this action",
+                403
+            )
+        );
+    }
+    next();
+};

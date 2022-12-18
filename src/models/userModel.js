@@ -9,7 +9,7 @@ import db from "../connections/dbConnection.js";
 const Schema = mongoose.Schema;
 
 //Creating User Schema
-const facultySchema = new Schema({
+const userSchema = new Schema({
     name: {
         type: String,
         required: [true, "Please enter your name!"],
@@ -21,11 +21,6 @@ const facultySchema = new Schema({
         lowercase: true,
         validate: [isEmail, "Please provide a valid email!"],
     },
-    gender: {
-        type: String,
-        enum: ["male", "female"],
-        required: [true, "Please provide your gender!"],
-    },
     mobile: {
         type: Number,
         required: [true, "Please provide your mobile number!"],
@@ -34,19 +29,41 @@ const facultySchema = new Schema({
         type: Number,
         required: [true, "Please provide your reg. no!"],
     },
-    department: {
+    gender: {
         type: String,
-        required: [true, "Please provide your branch!"],
+        enum: ["Male", "Female"],
+        required: [true, "Please provide your gender!"],
+    },
+    course: {
+        type: String,
+        enum: ["B-Tech", "IMBA"],
+        required: [true, "Please provide your course!"],
+    },
+    branch: {
+        type: String,
+    },
+    semester: {
+        type: Number,
+    },
+    status: {
+        type: String,
+        enum: ["active", "pending", "blocked"],
+        default: "pending",
+    },
+    role: {
+        type: String,
+        enum: ["student", "faculty"],
+        required: [true, "Role is required!"],
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
     },
     password: {
         type: String,
         required: [true, "Please provide a password!"],
         minlength: 8,
         select: false,
-    },
-    isAdmin: {
-        type: Boolean,
-        default: false,
     },
     passwordConfirm: {
         type: String,
@@ -62,15 +79,10 @@ const facultySchema = new Schema({
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
-    active: {
-        type: Boolean,
-        default: true,
-        select: false,
-    },
 });
 
 // This middleware will run before saving the data to the database
-facultySchema.pre("save", async function (next) {
+userSchema.pre("save", async function (next) {
     // if password is not modified then skip encryption and continue with rest of the code
     if (!this.isModified("password")) return next();
 
@@ -83,7 +95,7 @@ facultySchema.pre("save", async function (next) {
     next();
 });
 
-facultySchema.pre("save", function (next) {
+userSchema.pre("save", function (next) {
     if (!this.isModified("password") || this.isNew) return next();
 
     this.passwordChangedAt = Date.now() - 1000;
@@ -92,14 +104,14 @@ facultySchema.pre("save", function (next) {
 });
 
 // To select only active users
-facultySchema.pre(/^find/, function (next) {
+userSchema.pre(/^find/, function (next) {
     // this points to the current query
     this.find({ active: { $ne: false } });
     next();
 });
 
 // Create instance method that will check password is correct or not
-facultySchema.methods.correctPassword = async function (
+userSchema.methods.correctPassword = async function (
     candidatePassword,
     userPassword
 ) {
@@ -107,7 +119,7 @@ facultySchema.methods.correctPassword = async function (
 };
 
 // Instance method the check if user has changed password after token was issued
-facultySchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     if (this.passwordChangedAt) {
         const changedTimeStamp = parseInt(
             this.passwordChangedAt.getTime() / 1000,
@@ -124,6 +136,6 @@ facultySchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 
 //Create Model out of Schema
 
-const Faculty = db.model("Faculty", facultySchema);
+const User = db.model("User", userSchema);
 
-export default Faculty;
+export default User;

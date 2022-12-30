@@ -1,22 +1,29 @@
 import { Router } from "express";
-import { protect, restrictToAdmin } from "../auth/authController.js";
+import {
+    protect,
+    restrictToAdmin,
+    updatePassword,
+} from "../auth/authController.js";
 import {
     addUser,
     deleteUser,
-    getAlUsers,
+    getAllUsers,
+    getMe,
     getUser,
+    updateMe,
     updateUser,
 } from "./userController.js";
 
 const router = Router();
 
 router.use(protect);
-//For user it self : protected routes
+router.patch("/update-my-password", updatePassword);
+router.get("/me", getMe, getUser);
+router.patch("/update-me", updateMe);
 
 //Access to admins only
 router.use(restrictToAdmin);
-router.route("/").get(getAlUsers).post(addUser);
-
+router.route("/").get(getAllUsers).post(addUser);
 router.route("/:id").get(getUser).patch(updateUser).delete(deleteUser);
 
 export default router;

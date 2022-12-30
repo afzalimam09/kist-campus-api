@@ -5,6 +5,7 @@ const { sign, verify } = jsonwebtoken;
 import User from "../../models/userModel.js";
 import AppError from "../../helper/appError.js";
 import catchAsync from "../../helper/catchAsync.js";
+import Notification from "../../models/notificationModel.js";
 
 const signToken = (id) => {
     return sign({ id }, process.env.JWT_SECRET, {
@@ -35,6 +36,12 @@ const createSendToken = (user, statusCode, req, res) => {
 
 export const signup = catchAsync(async (req, res, next) => {
     const newUser = await User.create(req.body);
+    const notification = {
+        userId: newUser._id,
+        content:
+            "You have regestered successfully. But your account status is pending. You can wait for the account verification by Admin. Otherwise contact your admin!",
+    };
+    await Notification.create(notification);
     res.status(201).json({
         status: "success",
         message:
@@ -137,3 +144,24 @@ export const restrictToAdmin = (req, res, next) => {
     }
     next();
 };
+
+export const updatePassword = catchAsync(async (req, res, next) => {
+    // 1) Get user from collection
+    const user = await User.findById(req.user.id).select("+password");
+
+    // 2) Check if POSTed current password is correct
+    if (
+        !(await user.correctPassword(req.body.passwordCurrent, user.password))
+    ) {
+        return next(new AppError("Your current password is wrong.", 401));
+    }
+
+    // 3) If so, update password
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save();
+    // User.findByIdAndUpdate will NOT work as intended!
+
+    // 4) Log user in, send JWT
+    createSendToken(user, 200, req, res);
+});

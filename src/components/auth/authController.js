@@ -6,6 +6,7 @@ import User from "../../models/userModel.js";
 import AppError from "../../helper/appError.js";
 import catchAsync from "../../helper/catchAsync.js";
 import Notification from "../../models/notificationModel.js";
+import { cloudinary } from "../../utils/cloudinary.js";
 
 const signToken = (id) => {
     return sign({ id }, process.env.JWT_SECRET, {
@@ -164,4 +165,27 @@ export const updatePassword = catchAsync(async (req, res, next) => {
 
     // 4) Log user in, send JWT
     createSendToken(user, 200, req, res);
+});
+
+export const uploadUserImage = catchAsync(async (req, res, next) => {
+    const { image, regNo, role } = req.body;
+    if (image && regNo && role) {
+        const imageTitle = `${role.toLowerCase()}-${regNo}`;
+        const uploadRes = await cloudinary.uploader.upload(image, {
+            upload_preset: "kist-onb",
+            overwrite: true,
+            folder: `kist-onb/users/${role.toLowerCase()}`,
+            public_id: imageTitle,
+            unique_filename: true,
+            transformation: [
+                { width: 460, height: 500, gravity: "faces", crop: "thumb" },
+            ],
+        });
+        if (uploadRes) {
+            req.body.profileImg = uploadRes.secure_url;
+            req.body.image = undefined;
+            console.log(req.body);
+        }
+    }
+    next();
 });

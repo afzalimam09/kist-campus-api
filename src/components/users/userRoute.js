@@ -3,6 +3,7 @@ import {
     protect,
     restrictToAdmin,
     updatePassword,
+    uploadUserImage,
 } from "../auth/authController.js";
 import {
     addUser,
@@ -19,7 +20,7 @@ const router = Router();
 router.use(protect);
 router.patch("/update-my-password", updatePassword);
 router.get("/me", getMe, getUser);
-router.patch("/update-me", updateMe);
+router.patch("/update-me", uploadUserImage, updateMe);
 
 //Access to admins only
 router.use(restrictToAdmin);

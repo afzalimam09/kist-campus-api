@@ -11,6 +11,10 @@ const noticeSchema = new Schema(
             type: String,
             required: [true, "Please enter notice title!"],
         },
+        refId: {
+            type: String,
+            required: [true, "Please enter notice reference Id!"],
+        },
         description: {
             type: String,
         },

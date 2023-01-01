@@ -46,11 +46,11 @@ app.use("/api", limiter);
 app.use(express.static(path.join(__dirname, "public")));
 
 // Body parser, reading data from body
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "25mb" }));
 app.use(
     express.urlencoded({
+        limit: "25mb",
         extended: true,
-        limit: "10kb",
     })
 );
 

@@ -32,33 +32,31 @@ const userSchema = new Schema({
     gender: {
         type: String,
         enum: ["Male", "Female"],
-        required: [true, "Please provide your gender!"],
     },
     course: {
         type: String,
-        enum: ["B-Tech", "IMBA"],
-        required: [true, "Please provide your course!"],
+        enum: ["B-Tech", "IMBA", "M-Tech", "MBA"],
     },
     branch: {
         type: String,
     },
     semester: {
-        type: Number,
+        type: String,
+        enum: ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"],
     },
     status: {
         type: String,
-        enum: ["active", "pending", "blocked"],
-        default: "pending",
+        enum: ["Active", "Pending", "Blocked"],
+        default: "Pending",
     },
     role: {
         type: String,
-        enum: ["student", "faculty"],
+        enum: ["Student", "Faculty"],
         required: [true, "Role is required!"],
     },
     profileImg: {
         type: String,
-        default:
-            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+        required: [true, "Image is required!"],
     },
     isAdmin: {
         type: Boolean,

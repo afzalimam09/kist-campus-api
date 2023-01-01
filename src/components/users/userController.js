@@ -43,9 +43,9 @@ export const updateMe = catchAsync(async (req, res, next) => {
         "course",
         "branch",
         "semester",
-        "role"
+        "role",
+        "profileImg"
     );
-    if (req.file) filteredBody.profileImg = req.file.filename;
 
     // 3) Update user document
     const updatedUser = await User.findByIdAndUpdate(

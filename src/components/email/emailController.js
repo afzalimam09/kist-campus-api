@@ -69,7 +69,7 @@ const messageData = (emails, notice) => {
                             border: none;
                             border-radius: 10px;
                         "
-                        href="https://kistcampus.netlify.app/notice/${
+                        href="https://kistcollege.netlify.app/notice/${
                             notice._id
                         }"
                         >Click Here to View</a

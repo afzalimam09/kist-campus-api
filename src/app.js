@@ -22,7 +22,11 @@ const app = express();
 // Global Middleware
 
 // Implement cors
-app.use(cors());
+app.use(
+    cors({
+        credentials: true,
+    })
+);
 app.options("*", cors());
 
 // Set Security HTTP headers

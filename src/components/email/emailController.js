@@ -128,6 +128,6 @@ export const sendNoticeEmail = catchAsync(async (req, res, next) => {
     const notice = req.body;
     const activeUsers = await User.find({ status: "Active" });
     const activeUsersEmail = activeUsers.map((user) => user.email);
-    sendEmailToMultiple(messageData(activeUsersEmail, notice));
+    await sendEmailToMultiple(messageData(activeUsersEmail, notice));
     res.json({ status: "success" });
 });
